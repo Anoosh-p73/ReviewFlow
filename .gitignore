@@ -1,0 +1,61 @@
+# Local environment and secrets
+.env
+.env.*
+!.env.example
+
+# Node.js and Next.js
+node_modules/
+.pnpm-store/
+.pnpm-debug.log*
+.next/
+out/
+dist/
+coverage/
+*.tsbuildinfo
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+.venv/
+venv/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+.coverage.*
+coverage.xml
+htmlcov/
+*.egg-info/
+build/
+
+# Browser and end-to-end tests
+playwright-report/
+test-results/
+blob-report/
+
+# Local application data
+.local/
+local-storage/
+
+# Editors and IDEs
+.idea/
+.vs/
+.vscode/*
+!.vscode/extensions.json
+!.vscode/settings.json
+*.suo
+*.user
+*.swp
+*~
+
+# Operating system files
+.DS_Store
+Thumbs.db
+Desktop.ini
+
+# Logs and temporary files
+*.log
+*.tmp
+*.temp
+.cache/
