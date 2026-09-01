@@ -1,0 +1,20 @@
+{
+  "name": "reviewflow",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Engineering document review and comment-resolution platform",
+  "packageManager": "pnpm@11.19.0",
+  "engines": {
+    "node": ">=24.11.0 <25",
+    "pnpm": "11.19.0"
+  },
+  "scripts": {
+    "check": "pnpm run check:planning",
+    "check:planning": "pwsh -NoLogo -NoProfile -File ./scripts/validate-planning.ps1",
+    "dev": "node ./scripts/application-not-available.mjs dev",
+    "build": "node ./scripts/application-not-available.mjs build",
+    "lint": "node ./scripts/application-not-available.mjs lint",
+    "typecheck": "node ./scripts/application-not-available.mjs typecheck",
+    "test": "node ./scripts/application-not-available.mjs test"
+  }
+}
