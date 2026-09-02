@@ -2,8 +2,10 @@
 
 ## Current state
 
-ReviewFlow does not yet contain a deployable application. The current GitHub
-Actions workflow therefore validates only behavior that exists today:
+ReviewFlow contains a runnable FastAPI development process, but no packaged
+deployment artifact or persistence boundary. Until Task 5 adds application
+quality gates, the current GitHub Actions workflow validates the repository
+planning and hygiene contract:
 
 - required planning documents are present;
 - the roadmap has 35-50 sequential, consistently structured tasks;
@@ -20,7 +22,9 @@ The same check runs locally with:
 The workflow runs for pull requests and pushes to `main`, uses read-only
 repository permissions, pins third-party actions to a full commit SHA, has a
 short timeout, and cancels superseded runs. It does not receive secrets or
-deploy anything.
+deploy anything. API lint, strict type checking, and tests are available locally
+through the commands documented in [development.md](development.md); adding them
+to GitHub Actions remains the explicit Task 5 boundary.
 
 ## CI evolution
 

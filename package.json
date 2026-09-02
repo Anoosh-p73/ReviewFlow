@@ -11,10 +11,14 @@
   "scripts": {
     "check": "pnpm run check:planning",
     "check:planning": "pwsh -NoLogo -NoProfile -File ./scripts/validate-planning.ps1",
-    "dev": "node ./scripts/application-not-available.mjs dev",
+    "dev": "pnpm run dev:api",
+    "dev:api": "uv --directory apps/api run uvicorn app.main:app --reload --no-access-log",
     "build": "node ./scripts/application-not-available.mjs build",
-    "lint": "node ./scripts/application-not-available.mjs lint",
-    "typecheck": "node ./scripts/application-not-available.mjs typecheck",
-    "test": "node ./scripts/application-not-available.mjs test"
+    "lint": "pnpm run lint:api",
+    "lint:api": "uv --directory apps/api run ruff check . && uv --directory apps/api run ruff format --check .",
+    "typecheck": "pnpm run typecheck:api",
+    "typecheck:api": "uv --directory apps/api run mypy .",
+    "test": "pnpm run test:api",
+    "test:api": "uv --directory apps/api run pytest"
   }
 }
