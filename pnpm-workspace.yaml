@@ -2,4 +2,7 @@ packages:
   - apps/*
   - packages/*
 
+allowBuilds:
+  unrs-resolver: true
+
 engineStrict: true

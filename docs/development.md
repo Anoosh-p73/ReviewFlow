@@ -2,10 +2,11 @@
 
 ## Current repository boundary
 
-ReviewFlow currently contains planning documents, root workspace tooling, and a
-runnable FastAPI process in `apps/api`. The API exposes process liveness and
-request diagnostics only. The web application, database, and all product domain
-behavior remain deferred to later roadmap tasks.
+ReviewFlow currently contains planning documents, root workspace tooling, a
+runnable Next.js web shell in `apps/web`, and a FastAPI process in `apps/api`.
+The web application presents only the planning-stage boundary; the API exposes
+process liveness and request diagnostics only. The database and all product
+domain behavior remain deferred to later roadmap tasks.
 
 ## Supported tools
 
@@ -71,10 +72,9 @@ pnpm install --frozen-lockfile
 uv --directory apps/api sync --locked --all-groups
 ```
 
-The root workspace currently has no JavaScript dependencies. The first command
-validates its manifest and workspace lockfile; the second creates
-`apps/api/.venv` with the exact API runtime and development dependencies from
-`apps/api/uv.lock`.
+The first command installs the exact web runtime and development dependency
+graph from the root `pnpm-lock.yaml`. The second creates `apps/api/.venv` with
+the exact API runtime and development dependencies from `apps/api/uv.lock`.
 
 ## Repository commands
 
@@ -86,22 +86,41 @@ pnpm check
 
 `pnpm check` validates required planning files, roadmap structure, local
 Markdown links, and trailing whitespace. It is the same check used by the
-current GitHub Actions workflow. Run the API checks locally with:
+current GitHub Actions workflow. Run the application checks locally with:
 
 ```text
 pnpm lint
+pnpm format:check
 pnpm typecheck
 pnpm test
+pnpm build
 ```
 
-These run Ruff, strict mypy, and pytest respectively against `apps/api`.
+The aggregate commands run Ruff/ESLint, Prettier, strict mypy/TypeScript, and
+pytest/Vitest across the applications. `pnpm build` creates the optimized
+Next.js production output.
+
+## Run and inspect the web application
+
+Start the web development server from the repository root:
+
+```text
+pnpm dev
+```
+
+Open `http://localhost:3000`. Inspect the page at narrow and wide viewport
+sizes, then press Tab from the top of the page. The first keyboard-focusable
+element is the visible `Skip to main content` link; activating it moves focus to
+the main content. Confirm that the page has no inactive product controls and
+that neither the browser console nor the development server reports errors.
+Stop the server with Ctrl+C.
 
 ## Run and inspect the API
 
 Start the development server from the repository root:
 
 ```text
-pnpm dev
+pnpm dev:api
 ```
 
 The command listens on `http://127.0.0.1:8000`, reloads after source changes,
@@ -121,8 +140,8 @@ Both calls return HTTP 200 and JSON
 Application lifecycle and request completion records are emitted as one JSON
 object per line on stdout. Stop the server with Ctrl+C.
 
-The root `build` command remains unavailable because Task 2 introduces no
-packaged deployment artifact.
+The API still has no packaged deployment artifact; the root build command
+currently builds only the web application.
 
 ## API configuration
 
@@ -154,12 +173,15 @@ files. Do not commit secrets, machine-specific paths, virtual environments,
 
 ## Clean-clone verification
 
-To verify Task 2 from a clean clone:
+To verify Task 3 from a clean clone:
 
 1. Confirm Node.js, pnpm, Python, and uv match the supported versions.
 2. Run `pnpm install --frozen-lockfile`.
 3. Run `uv --directory apps/api sync --locked --all-groups`.
-4. Run `pnpm check`, `pnpm lint`, `pnpm typecheck`, and `pnpm test`.
-5. Start `pnpm dev` and complete both liveness requests above.
-6. Stop the server cleanly and confirm `git status --short` has no tracked
+4. Run `pnpm check`, `pnpm lint`, `pnpm format:check`, `pnpm typecheck`,
+   `pnpm test`, and `pnpm build`.
+5. Start `pnpm dev` and complete the responsive and keyboard inspection above.
+6. Stop the web server, start `pnpm dev:api`, and complete both liveness
+   requests above.
+7. Stop the API server cleanly and confirm `git status --short` has no tracked
    changes.

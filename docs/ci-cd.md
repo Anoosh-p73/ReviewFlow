@@ -2,7 +2,8 @@
 
 ## Current state
 
-ReviewFlow contains a runnable FastAPI development process, but no packaged
+ReviewFlow contains runnable Next.js and FastAPI development processes, plus a
+production build for the static planning-stage web shell. It has no supported
 deployment artifact or persistence boundary. Until Task 5 adds application
 quality gates, the current GitHub Actions workflow validates the repository
 planning and hygiene contract:
@@ -22,9 +23,10 @@ The same check runs locally with:
 The workflow runs for pull requests and pushes to `main`, uses read-only
 repository permissions, pins third-party actions to a full commit SHA, has a
 short timeout, and cancels superseded runs. It does not receive secrets or
-deploy anything. API lint, strict type checking, and tests are available locally
-through the commands documented in [development.md](development.md); adding them
-to GitHub Actions remains the explicit Task 5 boundary.
+deploy anything. Application lint, formatting, strict type checking, tests, and
+the web production build are available locally through the commands documented
+in [development.md](development.md); adding them to GitHub Actions remains the
+explicit Task 5 boundary.
 
 ## CI evolution
 
