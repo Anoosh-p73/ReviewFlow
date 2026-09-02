@@ -11,14 +11,21 @@
   "scripts": {
     "check": "pnpm run check:planning",
     "check:planning": "pwsh -NoLogo -NoProfile -File ./scripts/validate-planning.ps1",
-    "dev": "pnpm run dev:api",
+    "dev": "pnpm run dev:web",
     "dev:api": "uv --directory apps/api run uvicorn app.main:app --reload --no-access-log",
-    "build": "node ./scripts/application-not-available.mjs build",
-    "lint": "pnpm run lint:api",
+    "dev:web": "pnpm --filter @reviewflow/web dev",
+    "build": "pnpm run build:web",
+    "build:web": "pnpm --filter @reviewflow/web build",
+    "lint": "pnpm run lint:api && pnpm run lint:web",
     "lint:api": "uv --directory apps/api run ruff check . && uv --directory apps/api run ruff format --check .",
-    "typecheck": "pnpm run typecheck:api",
+    "lint:web": "pnpm --filter @reviewflow/web lint",
+    "format:check": "pnpm run format:web",
+    "format:web": "pnpm --filter @reviewflow/web format:check",
+    "typecheck": "pnpm run typecheck:api && pnpm run typecheck:web",
     "typecheck:api": "uv --directory apps/api run mypy .",
-    "test": "pnpm run test:api",
-    "test:api": "uv --directory apps/api run pytest"
+    "typecheck:web": "pnpm --filter @reviewflow/web typecheck",
+    "test": "pnpm run test:api && pnpm run test:web",
+    "test:api": "uv --directory apps/api run pytest",
+    "test:web": "pnpm --filter @reviewflow/web test"
   }
 }

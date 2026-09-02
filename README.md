@@ -5,10 +5,23 @@
 ReviewFlow is a planned web application for managing interdisciplinary
 engineering document reviews, comments, and revision workflows.
 
-The repository currently contains the first runnable application boundary: a
-small FastAPI service with typed environment settings, structured request logs,
-request identifiers, and process liveness. Product workflows, persistence, and
-the web application are introduced incrementally by the roadmap.
+The repository currently contains two runnable application boundaries: a
+restrained Next.js web shell and a small FastAPI service with typed environment
+settings, structured request logs, request identifiers, and process liveness.
+Product workflows and persistence are introduced incrementally by the roadmap.
+
+## Web quick start
+
+Install the supported Node.js and pnpm versions described in
+[development setup](docs/development.md), then run from the repository root:
+
+```powershell
+pnpm install --frozen-lockfile
+pnpm dev
+```
+
+The planning-stage web shell listens on `http://localhost:3000`. It contains no
+product data, API integration, authentication, or inactive workflow controls.
 
 ## API quick start
 
@@ -17,7 +30,7 @@ Install the supported `uv` and Python versions described in
 
 ```powershell
 uv --directory apps/api sync --locked --all-groups
-pnpm dev
+pnpm dev:api
 ```
 
 The API listens on `http://127.0.0.1:8000`. Its current HTTP contract is:
@@ -48,6 +61,7 @@ boundaries become real. Run the current repository check locally with:
 ./scripts/validate-planning.ps1
 ```
 
-Run `pnpm lint`, `pnpm typecheck`, and `pnpm test` for the API quality checks.
-See the development setup for deterministic installation, configuration, and
-manual verification commands.
+Run `pnpm lint`, `pnpm format:check`, `pnpm typecheck`, `pnpm test`, and
+`pnpm build` for the current application quality checks. See the development
+setup for deterministic installation, configuration, and manual verification
+commands.

@@ -1,0 +1,70 @@
+@import "tailwindcss";
+
+@theme {
+  --color-canvas: #f3f6f2;
+  --color-surface: #fbfcfa;
+  --color-ink: #14221c;
+  --color-muted: #55645d;
+  --color-line: #ced8d1;
+  --color-accent: #237e5f;
+  --color-accent-strong: #176247;
+  --shadow-panel: 0 24px 70px -36px rgb(20 34 28 / 38%);
+  --font-sans: "Aptos", "Segoe UI", system-ui, sans-serif;
+}
+
+:root {
+  color-scheme: light;
+  background: var(--color-canvas);
+  font-family: var(--font-sans);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  min-width: 20rem;
+  background: var(--color-canvas);
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  background: var(--color-canvas);
+  color: var(--color-ink);
+  text-rendering: optimizeLegibility;
+}
+
+::selection {
+  background: color-mix(in srgb, var(--color-accent) 24%, transparent);
+}
+
+:focus-visible {
+  outline: 3px solid var(--color-accent);
+  outline-offset: 4px;
+}
+
+.skip-link {
+  position: fixed;
+  top: 1rem;
+  left: 1rem;
+  z-index: 50;
+  translate: 0 -200%;
+  border-radius: 0.5rem;
+  background: var(--color-ink);
+  padding: 0.75rem 1rem;
+  color: var(--color-canvas);
+  font-size: 0.875rem;
+  font-weight: 700;
+  transition: translate 140ms ease;
+}
+
+.skip-link:focus {
+  translate: 0;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .skip-link {
+    transition: none;
+  }
+}
