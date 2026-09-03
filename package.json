@@ -14,6 +14,10 @@
     "dev": "pnpm run dev:web",
     "dev:api": "uv --directory apps/api run uvicorn app.main:app --reload --no-access-log",
     "dev:web": "pnpm --filter @reviewflow/web dev",
+    "db:up": "docker compose up -d --wait postgres",
+    "db:down": "docker compose down",
+    "db:migrate": "uv --directory apps/api run alembic upgrade head",
+    "db:current": "uv --directory apps/api run alembic current",
     "build": "pnpm run build:web",
     "build:web": "pnpm --filter @reviewflow/web build",
     "lint": "pnpm run lint:api && pnpm run lint:web",
@@ -26,6 +30,8 @@
     "typecheck:web": "pnpm --filter @reviewflow/web typecheck",
     "test": "pnpm run test:api && pnpm run test:web",
     "test:api": "uv --directory apps/api run pytest",
+    "test:api:unit": "uv --directory apps/api run pytest -m \"not integration\"",
+    "test:api:integration": "uv --directory apps/api run pytest -m integration",
     "test:web": "pnpm --filter @reviewflow/web test"
   }
 }

@@ -3,6 +3,7 @@
 from uuid import UUID
 
 from fastapi.testclient import TestClient
+from pydantic import SecretStr
 
 from app.core.config import Environment, Settings
 from app.core.request_id import REQUEST_ID_HEADER
@@ -67,6 +68,23 @@ def test_unknown_route_uses_fastapi_default_not_found_response() -> None:
     assert response.status_code == 404
     assert response.json() == {"detail": "Not Found"}
     assert REQUEST_ID_HEADER in response.headers
+
+
+def test_readiness_failure_is_non_sensitive_and_does_not_change_liveness() -> None:
+    settings = Settings(
+        environment=Environment.TEST,
+        database_url=SecretStr("postgresql+psycopg://user:secret@127.0.0.1:1/unavailable"),
+        database_timeout_seconds=1,
+    )
+
+    with TestClient(create_app(settings)) as client:
+        readiness = client.get("/health/ready")
+        liveness = client.get("/health/live")
+
+    assert readiness.status_code == 503
+    assert readiness.json() == {"status": "unavailable", "schema_version": "1"}
+    assert "secret" not in readiness.text
+    assert liveness.status_code == 200
 
 
 def test_unexpected_exception_does_not_expose_detail_in_production() -> None:
