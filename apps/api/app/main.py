@@ -9,6 +9,7 @@ from app.api.router import api_router
 from app.core.config import Settings, get_settings
 from app.core.logging import configure_logging, get_logger
 from app.core.request_id import RequestIdMiddleware
+from app.db.engine import create_database_resources
 
 
 def create_app(settings: Settings | None = None) -> FastAPI:
@@ -16,6 +17,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     resolved_settings = settings or get_settings()
     configure_logging(resolved_settings.log_level)
     logger = get_logger(__name__)
+    database = create_database_resources(resolved_settings)
 
     @asynccontextmanager
     async def lifespan(_: FastAPI) -> AsyncIterator[None]:
@@ -23,8 +25,11 @@ def create_app(settings: Settings | None = None) -> FastAPI:
             "application_started",
             extra={"environment": resolved_settings.environment.value},
         )
-        yield
-        logger.info("application_stopped")
+        try:
+            yield
+        finally:
+            database.engine.dispose()
+            logger.info("application_stopped")
 
     application = FastAPI(
         title="ReviewFlow API",
@@ -33,6 +38,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
         lifespan=lifespan,
     )
     application.add_middleware(RequestIdMiddleware)
+    application.state.database = database
     application.include_router(api_router)
     return application
 

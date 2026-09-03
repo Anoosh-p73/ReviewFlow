@@ -3,10 +3,10 @@
 ## Current state
 
 ReviewFlow contains runnable Next.js and FastAPI development processes, plus a
-production build for the static planning-stage web shell. It has no supported
-deployment artifact or persistence boundary. Until Task 5 adds application
-quality gates, the current GitHub Actions workflow validates the repository
-planning and hygiene contract:
+production build for the static planning-stage web shell and a local PostgreSQL
+persistence foundation. It has no supported deployment artifact or domain
+tables. Until Task 5 adds application quality gates, the current GitHub Actions
+workflow validates the repository planning and hygiene contract:
 
 - required planning documents are present;
 - the roadmap has 35-50 sequential, consistently structured tasks;

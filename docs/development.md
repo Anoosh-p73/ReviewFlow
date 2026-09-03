@@ -5,8 +5,9 @@
 ReviewFlow currently contains planning documents, root workspace tooling, a
 runnable Next.js web shell in `apps/web`, and a FastAPI process in `apps/api`.
 The web application presents only the planning-stage boundary; the API exposes
-process liveness and request diagnostics only. The database and all product
-domain behavior remain deferred to later roadmap tasks.
+process liveness, database readiness, and request diagnostics. A local
+PostgreSQL service, SQLAlchemy session lifecycle, and Alembic configuration are
+present, but no product tables or domain behavior exist yet.
 
 ## Supported tools
 
@@ -98,7 +99,38 @@ pnpm build
 
 The aggregate commands run Ruff/ESLint, Prettier, strict mypy/TypeScript, and
 pytest/Vitest across the applications. `pnpm build` creates the optimized
-Next.js production output.
+Next.js production output. The complete API test suite expects the dedicated
+`reviewflow_test` database described below. Run only database-independent API
+tests with `pnpm test:api:unit`.
+
+## Run PostgreSQL and migrations
+
+Docker Compose runs only PostgreSQL; the API and web processes remain local:
+
+```text
+pnpm db:up
+pnpm db:migrate
+pnpm db:current
+```
+
+The service uses the pinned `postgres:18.6-alpine3.24` image, binds only to
+`127.0.0.1:5432`, and persists development data in the named
+`reviewflow-postgres-data` volume. On the first initialization it creates the
+normal `reviewflow` database and the separate `reviewflow_test` database. The
+integration fixtures reject any test URL whose database name is not exactly
+`reviewflow_test`, and every test runs inside an outer transaction that is
+rolled back during cleanup.
+
+Run the PostgreSQL-backed tests separately when useful:
+
+```text
+pnpm test:api:integration
+```
+
+Stop the dependency without deleting its named volume with `pnpm db:down`.
+Migration configuration consumes the application's shared SQLAlchemy metadata.
+Task 4 intentionally adds no baseline revision because there are no domain
+tables to migrate.
 
 ## Run and inspect the web application
 
@@ -138,7 +170,19 @@ Both calls return HTTP 200 and JSON
 `{"status":"ok","schema_version":"1"}`. Each response includes an
 `X-Request-ID` header; the second response preserves `manual-check-001`.
 Application lifecycle and request completion records are emitted as one JSON
-object per line on stdout. Stop the server with Ctrl+C.
+object per line on stdout. Check database readiness separately:
+
+```powershell
+Invoke-WebRequest http://127.0.0.1:8000/health/ready
+```
+
+Readiness returns HTTP 200 and JSON
+`{"status":"ready","schema_version":"1"}` while PostgreSQL is usable. Stop
+PostgreSQL with `pnpm db:down` and call both endpoints again: liveness remains
+HTTP 200, while readiness returns HTTP 503 and
+`{"status":"unavailable","schema_version":"1"}`. Connection and pool waits
+and the readiness statement are bounded by the configured database timeout.
+Stop the server with Ctrl+C.
 
 The API still has no packaged deployment artifact; the root build command
 currently builds only the web application.
@@ -152,11 +196,15 @@ created. Supported variables are:
 | --- | --- | --- |
 | `REVIEWFLOW_ENVIRONMENT` | `local`, `test`, `production` | `local` |
 | `REVIEWFLOW_LOG_LEVEL` | `DEBUG`, `INFO`, `WARNING`, `ERROR`, `CRITICAL` | `INFO` |
+| `REVIEWFLOW_DATABASE_URL` | `postgresql+psycopg` URL naming a database | local Compose database |
+| `REVIEWFLOW_DATABASE_TIMEOUT_SECONDS` | integer from 1 through 10 | `2` |
 
 Malformed values stop application startup with a validation error. The local
 environment enables FastAPI debug diagnostics; use `production` outside local
-development so unexpected responses never expose stack traces. No secrets or
-external-service settings exist yet.
+development so unexpected responses never expose stack traces. The database URL
+is treated as a secret setting and validation errors do not echo its value. The
+committed default credentials are local-development-only and must be overridden
+outside the local Compose environment.
 
 ## Line endings and local files
 
@@ -173,15 +221,18 @@ files. Do not commit secrets, machine-specific paths, virtual environments,
 
 ## Clean-clone verification
 
-To verify Task 3 from a clean clone:
+To verify Task 4 from a clean clone:
 
 1. Confirm Node.js, pnpm, Python, and uv match the supported versions.
 2. Run `pnpm install --frozen-lockfile`.
 3. Run `uv --directory apps/api sync --locked --all-groups`.
-4. Run `pnpm check`, `pnpm lint`, `pnpm format:check`, `pnpm typecheck`,
+4. Run `pnpm db:up`, `pnpm db:migrate`, and `pnpm db:current`.
+5. Run `pnpm check`, `pnpm lint`, `pnpm format:check`, `pnpm typecheck`,
    `pnpm test`, and `pnpm build`.
-5. Start `pnpm dev` and complete the responsive and keyboard inspection above.
-6. Stop the web server, start `pnpm dev:api`, and complete both liveness
-   requests above.
-7. Stop the API server cleanly and confirm `git status --short` has no tracked
-   changes.
+6. Start `pnpm dev` and complete the responsive and keyboard inspection above.
+7. Stop the web server, start `pnpm dev:api`, and complete the liveness and
+   readiness requests above, including the stopped-database behavior.
+8. Inspect the `public` schema. Apart from Alembic's version bookkeeping when
+   created by the tool, it contains no product tables or sample rows.
+9. Stop the API and dependency cleanly and confirm `git status --short` has no
+   unexpected tracked changes.
