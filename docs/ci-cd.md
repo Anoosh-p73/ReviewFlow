@@ -5,33 +5,32 @@
 ReviewFlow contains runnable Next.js and FastAPI development processes, plus a
 production build for the static planning-stage web shell and a local PostgreSQL
 persistence foundation. It has no supported deployment artifact or domain
-tables. Until Task 5 adds application quality gates, the current GitHub Actions
-workflow validates the repository planning and hygiene contract:
+tables. The current GitHub Actions workflow has four independent jobs:
 
-- required planning documents are present;
-- the roadmap has 35-50 sequential, consistently structured tasks;
-- Tasks 1-5 retain their additional implementation detail;
-- local Markdown links resolve; and
-- repository text files contain no trailing whitespace.
+- repository planning and hygiene validation;
+- API Ruff, formatting, strict mypy, and database-independent pytest checks;
+- web ESLint, Prettier, TypeScript, Vitest, and Next.js production build checks;
+  and
+- Alembic application and integration tests against an ephemeral PostgreSQL
+  service.
 
-The same check runs locally with:
+The planning and hygiene check runs locally with:
 
 ```powershell
 ./scripts/validate-planning.ps1
 ```
 
 The workflow runs for pull requests and pushes to `main`, uses read-only
-repository permissions, pins third-party actions to a full commit SHA, has a
-short timeout, and cancels superseded runs. It does not receive secrets or
-deploy anything. Application lint, formatting, strict type checking, tests, and
-the web production build are available locally through the commands documented
-in [development.md](development.md); adding them to GitHub Actions remains the
-explicit Task 5 boundary.
+repository permissions, pins third-party actions to full commit SHAs, applies
+bounded job timeouts, and cancels superseded runs. Python and pnpm download
+caches are keyed from their dependency lockfiles, but every cached job still
+executes locked or frozen dependency installation. The PostgreSQL job uses
+committed CI-only credentials and no production material. The workflow does not
+receive repository secrets, publish artifacts, or deploy anything.
 
 ## CI evolution
 
-Task 5 will expand continuous integration when both applications and PostgreSQL
-support exist. CI will then run the same commands developers run locally:
+The current continuous integration sequence is:
 
 ```text
 Pull request
@@ -44,8 +43,8 @@ Pull request
 
 Later tasks add API-contract drift checks, browser smoke tests, container builds,
 dependency review, and security scanning only when the corresponding artifacts
-exist. Lockfiles remain mandatory, action references remain immutable, and CI
-credentials use least privilege.
+exist. Those later checks and all delivery behavior remain explicitly outside
+the current workflow.
 
 ## Delivery evolution
 

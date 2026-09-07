@@ -1,6 +1,6 @@
 # ReviewFlow
 
-[![Planning checks](https://github.com/Anoosh-p73/ReviewFlow/actions/workflows/planning-checks.yml/badge.svg)](https://github.com/Anoosh-p73/ReviewFlow/actions/workflows/planning-checks.yml)
+[![Continuous integration](https://github.com/Anoosh-p73/ReviewFlow/actions/workflows/planning-checks.yml/badge.svg)](https://github.com/Anoosh-p73/ReviewFlow/actions/workflows/planning-checks.yml)
 
 ReviewFlow is a planned web application for managing interdisciplinary
 engineering document reviews, comments, and revision workflows.
@@ -57,10 +57,11 @@ PostgreSQL and returns HTTP 503 without sensitive diagnostics when unavailable.
 
 ## Current automation
 
-GitHub Actions currently validates the planning documents and repository
-hygiene on pull requests and pushes to `main`. Application CI, PostgreSQL
-integration tests, and deployment are added at the roadmap stages where those
-boundaries become real. Run the current repository check locally with:
+GitHub Actions validates repository hygiene, API quality, web quality and the
+production web build, plus PostgreSQL migrations and integration tests on pull
+requests and pushes to `main`. It installs from frozen lockfiles, caches only
+downloaded dependencies, and uses non-production database credentials. Run the
+repository check locally with:
 
 ```powershell
 ./scripts/validate-planning.ps1
@@ -69,4 +70,4 @@ boundaries become real. Run the current repository check locally with:
 Run `pnpm lint`, `pnpm format:check`, `pnpm typecheck`, `pnpm test`, and
 `pnpm build` for the current application quality checks. See the development
 setup for deterministic installation, configuration, and manual verification
-commands.
+commands. The workflow does not deploy or publish an application.
