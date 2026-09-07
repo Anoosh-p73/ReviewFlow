@@ -103,6 +103,39 @@ Next.js production output. The complete API test suite expects the dedicated
 `reviewflow_test` database described below. Run only database-independent API
 tests with `pnpm test:api:unit`.
 
+## Continuous integration status
+
+The `Continuous integration` workflow runs on pull requests and pushes to
+`main`. Its four jobs keep failures attributable to one boundary:
+
+- repository planning and hygiene;
+- API lint, formatting, strict types, and unit tests;
+- web lint, formatting, types, unit tests, and production build; and
+- Alembic migration application plus PostgreSQL integration tests.
+
+CI installs the pinned Python, uv, Node.js, and pnpm versions. Dependency caches
+are keyed from `apps/api/uv.lock` and `pnpm-lock.yaml`, while explicit
+`uv sync --locked --all-groups` and `pnpm install --frozen-lockfile` commands
+still verify both lockfiles on every run. The PostgreSQL service is ephemeral
+and uses only the visibly non-production `reviewflow-ci-only` password. No CI
+job deploys or publishes the applications.
+
+The jobs invoke the same root scripts available for focused local checks:
+
+```text
+pnpm lint:api
+pnpm typecheck:api
+pnpm test:api:unit
+pnpm lint:web
+pnpm format:check
+pnpm typecheck:web
+pnpm test:web
+pnpm build:web
+pnpm db:migrate
+pnpm db:current
+pnpm test:api:integration
+```
+
 ## Run PostgreSQL and migrations
 
 Docker Compose runs only PostgreSQL; the API and web processes remain local:
@@ -209,9 +242,9 @@ outside the local Compose environment.
 ## Line endings and local files
 
 `.editorconfig` defines UTF-8, LF line endings, a final newline, spaces, and
-trailing-whitespace removal. `.gitattributes` normalizes committed text to LF.
-On Windows, configure the editor to honor EditorConfig; Git may use CRLF in the
-working tree depending on local `core.autocrlf`, but committed text remains LF.
+trailing-whitespace removal. `.gitattributes` enforces LF for text in both the
+repository and working tree, including on Windows, so the same Prettier check
+runs consistently in local development and CI.
 
 The root `.env.example` documents safe local values. Use it as a reference and
 export only the overrides you need into the process environment before starting
@@ -221,7 +254,7 @@ files. Do not commit secrets, machine-specific paths, virtual environments,
 
 ## Clean-clone verification
 
-To verify Task 4 from a clean clone:
+To verify Task 5 from a clean clone:
 
 1. Confirm Node.js, pnpm, Python, and uv match the supported versions.
 2. Run `pnpm install --frozen-lockfile`.

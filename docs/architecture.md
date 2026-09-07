@@ -213,9 +213,9 @@ than maintaining a package until two JavaScript packages demonstrably need it.
 
 ## CI/CD boundary
 
-CI should grow with executable repository behavior. The planning-stage workflow
-checks document structure, links, and hygiene. Task 5 adds application lint,
-types, tests, builds, PostgreSQL integration, and migration verification. Later
+CI grows with executable repository behavior. The current workflow checks
+document structure and hygiene, application lint and types, unit tests, the web
+production build, PostgreSQL integration, and migration application. Later
 feature tasks add contract, browser, container, and security checks when their
 artifacts exist.
 
